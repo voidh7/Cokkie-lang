@@ -1,0 +1,2 @@
+# Cokkie-lang
+Simple language
