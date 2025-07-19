@@ -3,47 +3,41 @@
 #include <string.h>
 #include <ctype.h>
 
-
-typedef void (*CmdFunc)(const char *arg);
+typedef void (*CommandFunc)(const char *arg);
 
 typedef struct {
     const char *name;
-    CmdFunc func;
+    CommandFunc func;
 } Command;
 
-
-
-
 void cmd_es_println(const char *arg) {
-
-if(arg != NULL){
-printf("%s\n", arg);
-}
-
-else{
-printf("erro:arg not exist");
-}
-
-}
-
-void cmd_print(const char *arg){
-        if(arg != NULL){
-                printf("%s", arg);
-        }
-        else{
+    if (arg != NULL) {
+        printf("%s\n", arg);
+    } else {
         printf("erro:arg not exist");
-        }
+    }
 }
 
-void n(){
-        printf("\n");
+void cmd_print(const char *arg) {
+    if (arg != NULL) {
+        printf("%s", arg);
+    } else {
+        printf("erro:arg not exist");
+    }
 }
 
-void end(){
-        exit(0);
+void n(const char *arg) {
+    (void)arg;
+    printf("\n");
+}
+
+void end(const char *arg) {
+    (void)arg;
+    exit(0);
 }
 
 void cmd_clear(const char *arg) {
+    (void)arg;
 #ifdef _WIN32
     system("cls");
 #else
@@ -51,44 +45,36 @@ void cmd_clear(const char *arg) {
 #endif
 }
 
-void cmd_exec(const char *arg){
-if(arg != NULL){
+void cmd_exec(const char *arg) {
+    if (arg != NULL) {
         system(arg);
-}
-else{
-printf("erro:arg not exist");
-}
-
-}
-
-void out_printErr(const char *arg){
-if(arg != NULL){
-printf("\033[31m%s\033[0m\n",arg);
-
-}
-
-else{
+    } else {
         printf("erro:arg not exist");
+    }
 }
+
+void out_printErr(const char *arg) {
+    if (arg != NULL) {
+        printf("\033[31m%s\033[0m\n", arg);
+    } else {
+        printf("erro:arg not exist");
+    }
 }
 
 const Command command_table[] = {
     {"out.println", cmd_es_println},
-    {"out.printErr",out_printErr},
-    {"out.print",cmd_print},
+    {"out.printErr", out_printErr},
+    {"out.print", cmd_print},
     {"/clear", cmd_clear},
-    {"/n",n},
-    {"end",end},
-    {"for",cmd_for},
-    {"system.exec",cmd_exec},
+    {"/n", n},
+    {"end", end},
+    {"system.exec", cmd_exec},
     {NULL, NULL}
 };
 
-
-
 void trim(char *str) {
     int len = strlen(str);
-    while (len > 0 && (str[len-1] == '\n' || str[len-1] == '\r' || isspace(str[len-1])))
+    while (len > 0 && (str[len - 1] == '\n' || str[len - 1] == '\r' || isspace(str[len - 1])))
         str[--len] = '\0';
 }
 
@@ -121,8 +107,6 @@ const Command *get_command(const char *name) {
     }
     return NULL;
 }
-
-
 
 int main() {
     FILE *f = fopen("main.cokkie", "r");
