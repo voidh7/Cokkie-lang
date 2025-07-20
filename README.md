@@ -18,7 +18,7 @@ Steps to install and run:
 
 ``` bash
 
-curl https://github.com/voidh7/Cokkie-lang/blob/main/runCokkie
+curl https://github.com/voidh7/Cokkie-lang/blob/main/runCokkie_armv7
 ````
 ⚠️ This binary is built for **ARMv7 (32-bit)**.  
 If you're on **x86_64**, **ARM64**, or another architecture, it won't work.  
@@ -44,7 +44,7 @@ midir my-project-cokkie && cd my-project-cokkie
 
 install cokkie a sdk 
 ``` bash
-curl https://github.com/voidh7/Cokkie-lang/blob/main/runCokkie
+curl https://github.com/voidh7/Cokkie-lang/blob/main/runCokkie_armv7
 ```
 
 create your main.cokkie
