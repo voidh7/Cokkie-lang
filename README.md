@@ -1,5 +1,6 @@
 # Cokkie-lang
-Simple language
+
+> A minimal interpreted language written in C. Made for fun, chaos, and experiments.
 
 📦 Prerequisites
 What you need 
