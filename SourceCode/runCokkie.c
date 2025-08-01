@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <ctype.h>
+
+#define RED "\033[1;31m"
+#define RESET "\033[0m"
 
 typedef void (*CommandFunc)(const char *arg);
 
@@ -9,6 +13,39 @@ typedef struct {
     const char *name;
     CommandFunc func;
 } Command;
+
+#include <stdio.h>
+#include <string.h>
+
+// Função utilitária para obter apenas o nome do arquivo
+// Usa o último encontrado entre '/' e '\' para determinar o separador
+// Retornando o caminho passado por argumento caso não encontre nenhum dos dois
+const char *get_basename(const char *path) {
+    const char *slash_base = strrchr(path, '/');
+    const char *backslash_base = strrchr(path, '\\');
+
+    const char *base = slash_base > backslash_base ? slash_base : backslash_base;
+    return base ? base + 1 : path;
+}
+
+void log_error(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    fprintf(stderr, RED);
+    vfprintf(stderr, fmt, args);
+    fprintf(stderr, RESET);
+    va_end(args);
+}
+
+void fatal_error(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    fprintf(stderr, RED);
+    vfprintf(stderr, fmt, args);
+    fprintf(stderr, RESET);
+    va_end(args);
+    exit(1);
+}
 
 void cmd_es_println(const char *arg) {
     if (arg != NULL) {
@@ -49,7 +86,7 @@ void cmd_exec(const char *arg) {
     if (arg != NULL) {
         system(arg);
     } else {
-        printf("erro:arg not exist");
+        log_error("Error: Arg cannot be NULL");
     }
 }
 
@@ -57,7 +94,7 @@ void out_printErr(const char *arg) {
     if (arg != NULL) {
         printf("\033[31m%s\033[0m\n", arg);
     } else {
-        printf("erro:arg not exist");
+        log_error("Error: Arg cannot be NULL");
     }
 }
 
@@ -108,11 +145,40 @@ const Command *get_command(const char *name) {
     return NULL;
 }
 
-int main() {
-    FILE *f = fopen("main.cokkie", "r");
-    if (!f) {
-        printf("Erro ao abrir main.cokkie\n");
+void print_usage(const char *exe_name) {
+    printf(
+        "Usage: %s [-h | --help | <source_file>]\n"
+        "\n-h, --help\tShow this help message\n"
+        "<source_file>\tFile to execute\n"
+        "Note: Only one of the above options should be used at a time.\n",
+        exe_name
+    );
+}
+
+int main(int argc, char* argv[]) {
+    // Trata chamada do executável sem argumentos, exceto pelo seu nome 
+    if (argc < 2) {
+        print_usage(get_basename(argv[0]));
         return 1;
+    }
+
+    if (argc > 2) {
+        log_error("Error: Too many arguments. Expected only one argument, but got %d.\n", argc - 1);
+        print_usage(get_basename(argv[0]));
+        return 1;
+    }
+    
+    // Trata a opção "help", que pode serr invocada de forma simplificada ou não
+    if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
+        print_usage(get_basename(argv[0]));
+        return 0;
+    }
+
+    // A partir desse ponto assume que é o nome do arquivo
+    char *file_name = argv[1];
+    FILE *f = fopen(file_name, "r");
+    if (!f) {
+        fatal_error("Error: Cannot open file '%s'\n", file_name);
     }
 
     char line[256];
@@ -138,7 +204,7 @@ int main() {
         if (c) {
             c->func(arg);
         } else {
-            printf(" erro Comando desconhecido: %s\n", cmd);
+            log_error("Error: Unknown command: %s\n", cmd);
         }
     }
 
